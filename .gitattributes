@@ -1,0 +1,6 @@
+# DOS text files keep CR/LF line endings
+*.ASM   text eol=crlf
+*.INC   text eol=crlf
+*.BAT   text eol=crlf
+*.DAT   text eol=crlf
+*.COM   binary
