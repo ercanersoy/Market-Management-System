@@ -7,7 +7,7 @@
 
 ; ----------------------------------------------------------------------------
 ; kbd_init - use the enhanced BIOS functions when a 101/102-key keyboard
-;            is present (needed for F11/F12), otherwise the XT functions.
+;            is present (grey cursor keys), otherwise the XT functions.
 ; ----------------------------------------------------------------------------
 kbd_init:
         push    ax

@@ -751,6 +751,7 @@ fmt_product_line:
 list_view:
         push    cx
         push    dx
+        mov     byte [lv_focus],1
         call    lv_fix
 .draw:
         call    lv_draw
@@ -799,6 +800,7 @@ list_view:
         call    lv_fix
         jmp     .draw
 .return:
+        mov     byte [lv_focus],0
         xor     bx,bx
         cmp     word [lv_count],0
         je      .done
@@ -875,6 +877,8 @@ lv_draw:
         mov     si,ax
         shl     si,1
         mov     bl,A_NORMAL
+        cmp     byte [lv_focus],0       ; selection bar only in the list
+        je      .attr
         cmp     ax,[lv_sel]
         jne     .attr
         mov     bl,A_REVERSE

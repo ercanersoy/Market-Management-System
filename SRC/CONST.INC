@@ -69,10 +69,6 @@ S_END           = 4Fh
 S_DOWN          = 50h
 S_PGDN          = 51h
 S_DEL           = 53h
-S_SF1           = 54h                   ; Shift+F1 (alternative for F11)
-S_SF2           = 55h                   ; Shift+F2 (alternative for F12)
-S_F11           = 85h
-S_F12           = 86h
 
 ; ---- input_line flags ------------------------------------------------------
 IN_DIGITS       = 01h                   ; digits only

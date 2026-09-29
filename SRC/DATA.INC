@@ -77,48 +77,44 @@ msg_saver_len       = $ - msg_saver - 1
 ; ---- Section titles --------------------------------------------------------
 sec_main            db 'MAIN MENU',0
 sec_login           db 'LOGIN',0
-sec_help            db 'HELP',0
-sec_list            db 'PRODUCT LIST',0
+sec_help            db 'HELP AND ABOUT',0
+sec_products        db 'PRODUCTS',0
 sec_add             db 'ADD PRODUCT',0
-sec_search          db 'SEARCH PRODUCT',0
 sec_update          db 'UPDATE PRODUCT',0
 sec_delete          db 'DELETE PRODUCT',0
 sec_sell            db 'SALES (CHECKOUT)',0
 sec_report          db 'STOCK REPORT',0
 sec_backup          db 'BACKUP',0
 sec_settings        db 'SETTINGS',0
-sec_about           db 'ABOUT',0
 
 ; ---- Key hints (bottom line) -----------------------------------------------
-hint_main           db 'F1-F12 = Function   Up/Down + Enter = Select   Esc = Exit',0
+hint_main           db 'Press F1-F10 to select a function',0
 hint_login          db 'Enter = Log in   Esc = Exit to DOS',0
 hint_back           db 'Press any key to return to the main menu',0
-hint_list           db 'Up/Down/PgUp/PgDn = Move   Enter = Edit   Del = Delete   Esc = Back',0
+hint_prod_find      db 'Enter/Down = Search and go to the list (empty = all)   Esc = Back',0
 hint_form           db 'Enter = Next/Save   Up/Down = Field   Ctrl+Y = Clear field   Esc = Cancel',0
 hint_select         db 'Type or scan a barcode (or a part of a name) and press Enter   Esc = Back',0
-hint_search         db 'Enter = Search / Edit   Del = Delete   Esc = Back',0
+hint_prod_list      db 'Up/Down/PgUp/PgDn = Move   Enter = Edit   Del = Delete   Esc = Search',0
 hint_sell           db 'Enter = Add item   F2 = Payment   F3 = Remove last item   Esc = Cancel sale',0
 hint_backup         db 'Enter = Start backup   Esc = Back',0
 hint_settings       db 'Up/Down = Select   Enter/Space = Change   Esc = Save and return',0
 
 ; ---- Main menu -------------------------------------------------------------
-menu_texts          dw mt_help, mt_list, mt_add, mt_search, mt_update, mt_delete
-                    dw mt_sell, mt_report, mt_backup, mt_settings, mt_about, mt_exit
-menu_handlers       dw do_help, do_list, do_add, do_search, do_update, do_delete
-                    dw do_sell, do_report, do_backup, do_settings, do_about
+menu_texts          dw mt_help, mt_products, mt_add, mt_update, mt_delete
+                    dw mt_sell, mt_report, mt_backup, mt_settings, mt_exit
+menu_handlers       dw do_help, do_products, do_add, do_update, do_delete
+                    dw do_sell, do_report, do_backup, do_settings
 
-mt_help             db ' F1    Help',0
-mt_list             db ' F2    Product list',0
-mt_add              db ' F3    Add product',0
-mt_search           db ' F4    Search product',0
-mt_update           db ' F5    Update product',0
-mt_delete           db ' F6    Delete product',0
-mt_sell             db ' F7    Sales (checkout)',0
-mt_report           db ' F8    Stock report (STOCK.TXT)',0
-mt_backup           db ' F9    Backup',0
-mt_settings         db ' F10   Settings',0
-mt_about            db ' F11   About',0
-mt_exit             db ' F12   Exit',0
+mt_help             db 'F1    Help and About',0
+mt_products         db 'F2    Products (list and search)',0
+mt_add              db 'F3    Add product',0
+mt_update           db 'F4    Update product',0
+mt_delete           db 'F5    Delete product',0
+mt_sell             db 'F6    Sales (checkout)',0
+mt_report           db 'F7    Stock report (STOCK.TXT)',0
+mt_backup           db 'F8    Backup',0
+mt_settings         db 'F9    Settings',0
+mt_exit             db 'F10   Exit',0
 
 str_sum_products    db 'Products: ',0
 str_sum_max         db ' / 1000',0
@@ -132,23 +128,25 @@ lbl_password        db 'Password:',0
 err_wrong_password  db 'Wrong password!',0
 
 ; ---- Help ------------------------------------------------------------------
-help_text           db 'MAIN MENU',0
-                    db '  F1 Help             F5 Update product     F9  Backup',0
-                    db '  F2 Product list     F6 Delete product     F10 Settings',0
-                    db '  F3 Add product      F7 Sales (checkout)   F11 About  (also Shift+F1)',0
-                    db '  F4 Search product   F8 Stock report       F12 Exit   (also Shift+F2)',0
-                    db '  Up/Down and Enter also select a function. Esc leaves the program.',0
-                    db 0
-                    db 'TEXT FIELDS',0
+help_text           db 1,'ABOUT',0
+                    db '  MARKET MANAGEMENT SYSTEM 1.0 - stock, sales and reports for small markets',0
+                    db '  For IBM PC/XT (8088), MDA display and MS-DOS 3.0+, written with FASM.',0
+                    db '  Copyright (c) 2026 Ercan Ersoy. Released under the MIT License.',0
+                    db 1,'MAIN MENU FUNCTION KEYS',0
+                    db '  F1 Help and About    F4 Update product   F7 Stock report   F10 Exit',0
+                    db '  F2 Products          F5 Delete product   F8 Backup',0
+                    db '  F3 Add product       F6 Sales            F9 Settings',0
+                    db 1,'TEXT FIELDS',0
                     db '  Left/Right/Home/End move the cursor, Backspace/Del delete, Ctrl+Y clears.',0
                     db '  Enter confirms, Esc cancels. Up/Down or Tab/Shift+Tab change the field.',0
-                    db 0
-                    db 'LISTS',0
-                    db '  Up/Down/PgUp/PgDn/Home/End move, Enter edits, Del deletes, Esc returns.',0
-                    db 0
-                    db 'SALES AND BARCODE READERS',0
-                    db '  Type or scan a barcode and press Enter (a reader sends Enter itself).',0
-                    db '  Type 3*BARCODE to sell 3 pieces. F2 = payment, F3 = remove last item.',0
+                    db 1,'PRODUCTS',0
+                    db '  Type a barcode or a part of a name and press Enter (empty = all products).',0
+                    db '  In the list Up/Down/PgUp/PgDn/Home/End move, Enter edits, Del deletes.',0
+                    db 1,'SALES AND BARCODE READERS',0
+                    db '  Scan or type a barcode and press Enter (3*BARCODE sells 3 pieces).',0
+                    db '  F2 = payment, F3 = remove the last item, Esc = cancel the sale.',0
+                    db 1,'FILES',0
+                    db '  DATA.DAT = products, MARKET.CFG = settings, STOCK.TXT = stock report',0
                     db 0FFh
 
 ; ---- Product list and form -------------------------------------------------
@@ -299,21 +297,6 @@ err_pw_mismatch     db 'The passwords do not match. Password not changed.',0
 msg_pw_changed      db 'Password changed.',0
 msg_pw_removed      db 'Password removed, password login is off.',0
 
-; ---- About -----------------------------------------------------------------
-about_text          db 'MARKET MANAGEMENT SYSTEM',0
-                    db 'Version 1.0',0
-                    db 0
-                    db 'Stock, sales and reports for small markets',0
-                    db 'For IBM PC/XT (8088) with MDA display and MS-DOS 3.0+',0
-                    db 'Written in 8086 assembly language with FASM',0
-                    db 0
-                    db 'Copyright (c) 2026 Ercan Ersoy',0
-                    db 'Released under the MIT License',0
-                    db 0
-                    db 'Files: DATA.DAT, MARKET.CFG, STOCK.TXT',0
-                    db 0FFh
-str_about_count     db 'Products in database: ',0
-
 ; ---- Start-up warnings -----------------------------------------------------
 msg_db_full_load    db 'Warning: DATA.DAT has more than 1000 products, the rest was not loaded.',0
 msg_bad_lines1      db 'Warning: ',0
@@ -331,7 +314,7 @@ clock_last          dw 0FFFFh
 pending_msg         dw 0
 exit_msg            dw 0
 in_saver            db 0
-menu_sel            db 0
+lv_focus            db 0
 db_count            dw 0
 cart_n              dw 0
 

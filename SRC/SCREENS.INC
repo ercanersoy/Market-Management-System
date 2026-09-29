@@ -3,13 +3,13 @@
 ; ============================================================================
 
 MENU_TOP        = ROW_TOP+1
-MENU_BOTTOM     = MENU_TOP+13
+MENU_COUNT      = 10
+MENU_BOTTOM     = MENU_TOP+MENU_COUNT+1
 MENU_LEFT       = 19
 MENU_RIGHT      = 60
-MENU_COUNT      = 12
 
 ; ----------------------------------------------------------------------------
-; main_menu - F1..F12 (or Up/Down and Enter) select a function
+; main_menu - the functions are selected with F1..F10 only
 ; ----------------------------------------------------------------------------
 main_menu:
 .redraw:
@@ -20,75 +20,19 @@ main_menu:
         mov     cx,(MENU_BOTTOM shl 8) + MENU_RIGHT
         mov     bl,A_NORMAL
         call    draw_box
-        call    menu_summary
-.items:
         call    menu_items
+        call    menu_summary
 .key:
         call    get_key
         or      al,al
-        jnz     .ascii
-        mov     al,ah
-        cmp     al,S_F1
-        jb      .nav
-        cmp     al,S_F10
-        ja      .nav
-        sub     al,S_F1                 ; F1..F10 -> 0..9
-        jmp     .run
-.nav:
-        cmp     al,S_F11
-        je      .f11
-        cmp     al,S_SF1
-        je      .f11
-        cmp     al,S_F12
-        je      .f12
-        cmp     al,S_SF2
-        je      .f12
-        cmp     al,S_UP
-        je      .up
-        cmp     al,S_DOWN
-        je      .down
-        cmp     al,S_HOME
-        je      .home
-        cmp     al,S_END
-        je      .f12_sel
-        jmp     .key
-.f11:
-        mov     al,10
-        jmp     .run
-.f12:
-        mov     al,11
-        jmp     .run
-.up:
-        mov     al,[menu_sel]
-        dec     al
-        jns     .select
-.f12_sel:
-        mov     al,MENU_COUNT-1
-        jmp     .select
-.down:
-        mov     al,[menu_sel]
-        inc     al
-        cmp     al,MENU_COUNT
-        jb      .select
-.home:
-        xor     al,al
-.select:
-        mov     [menu_sel],al
-        jmp     .items
-.ascii:
-        cmp     al,K_ENTER
-        jne     .esc
-        mov     al,[menu_sel]
-        jmp     .run
-.esc:
-        cmp     al,K_ESC
-        jne     .key
-        mov     al,MENU_COUNT-1
-.run:
-        mov     [menu_sel],al
-        call    menu_items
-        cmp     al,MENU_COUNT-1
+        jnz     .key                    ; only function keys are used
+        cmp     ah,S_F1
+        jb      .key
+        cmp     ah,S_F10
+        ja      .key
         je      .exit
+        mov     al,ah
+        sub     al,S_F1                 ; F1..F9 -> 0..8
         xor     ah,ah
         mov     bx,ax
         shl     bx,1
@@ -97,38 +41,31 @@ main_menu:
 .exit:
         mov     si,msg_exit_confirm
         call    ask_yn
-        jnc     .jf8
-        jmp     .key
-.jf8:
+        jc      .key
         ret
 
-; menu_items - draw the menu entries (selected one in reverse video)
+; menu_items - draw the menu entries
 menu_items:
         push    ax
         push    bx
-        push    cx
         push    dx
         push    si
         xor     ax,ax
-        mov     dx,((MENU_TOP+1) shl 8) + MENU_LEFT+2
+        mov     dx,((MENU_TOP+1) shl 8) + MENU_LEFT+4
+        mov     bl,A_NORMAL
 .next:
         mov     si,ax
         shl     si,1
         mov     si,[menu_texts+si]
-        mov     bl,A_NORMAL
-        cmp     al,[menu_sel]
-        jne     .put
-        mov     bl,A_REVERSE
-.put:
-        mov     cx,MENU_RIGHT-MENU_LEFT-3
-        call    put_field
+        push    dx
+        call    put_str
+        pop     dx
         inc     dh
         inc     ax
         cmp     ax,MENU_COUNT
         jb      .next
         pop     si
         pop     dx
-        pop     cx
         pop     bx
         pop     ax
         ret
@@ -227,7 +164,7 @@ show_pending:
         ret
 
 ; ----------------------------------------------------------------------------
-; F1 - Help
+; F1 - Help and About
 ; ----------------------------------------------------------------------------
 do_help:
         mov     si,sec_help
@@ -241,29 +178,59 @@ do_help:
         ret
 
 ; ----------------------------------------------------------------------------
-; F2 - Product list
+; F2 - Products (list and search)
+;   The search field is on top, the (filtered) product list below it.
+;   Enter in the search field filters the list and moves into the list;
+;   in the list Enter edits, Del deletes and Esc returns to the search field.
 ; ----------------------------------------------------------------------------
-do_list:
-        xor     ax,ax
-        mov     [lv_sel],ax
-        mov     [lv_top],ax
-.redraw:
-        mov     si,sec_list
-        mov     di,hint_list
-        call    draw_frame
-.refresh:
-        mov     byte [lv_first],ROW_TOP+1
-        mov     word [lv_rows],ROW_BOTTOM-ROW_TOP-1
-        call    db_filter_all
-.list:
-        call    list_view
+do_products:
+        mov     byte [query_buf],0
+        call    .reset
+        call    .frame
+.input:
+        mov     si,hint_prod_find
+        call    draw_hint
+        mov     si,query_buf
+        mov     cx,QUERY_LEN
+        mov     dx,(ROW_TOP shl 8) + 10
+        xor     bl,bl
+        call    input_line
         cmp     al,K_ESC
         je      .done
+        cmp     al,K_ENTER
+        je      .search
+        or      al,al
+        jnz     .input
+        cmp     ah,S_DOWN               ; Down/PgDn also apply the search
+        je      .search
+        cmp     ah,S_PGDN
+        je      .search
+        jmp     .input
+.search:
+        call    .reset
+        call    .refresh
+        cmp     word [lv_count],0
+        jne     .list
+        mov     si,msg_not_found
+        call    show_error
+        jmp     .input
+.list:
+        cmp     word [lv_count],0
+        je      .input
+        mov     si,hint_prod_list
+        call    draw_hint
+        call    list_view
+        cmp     al,K_ESC
+        jne     .enter
+        call    lv_draw                 ; redraw without the selection bar
+        jmp     .input
+.enter:
         cmp     al,K_ENTER
         jne     .delete
         mov     ax,bx
         call    edit_record
-        jmp     .redraw
+        call    .frame
+        jmp     .list
 .delete:
         or      al,al
         jnz     .list
@@ -272,8 +239,37 @@ do_list:
         mov     ax,bx
         call    delete_confirm
         call    show_pending
-        jmp     .refresh
+        call    .refresh
+        jmp     .list
 .done:
+        ret
+
+.reset:
+        xor     ax,ax
+        mov     [lv_sel],ax
+        mov     [lv_top],ax
+        ret
+
+.frame:
+        mov     si,sec_products
+        mov     di,hint_prod_find
+        call    draw_frame
+        mov     dx,(ROW_TOP shl 8) + 1
+        mov     si,lbl_search
+        mov     bl,A_NORMAL
+        call    put_str
+.refresh:
+        mov     si,query_buf
+        call    str_trim
+        call    db_filter
+        mov     byte [lv_first],ROW_TOP+3
+        mov     word [lv_rows],ROW_BOTTOM-ROW_TOP-3
+        call    lv_fix
+        call    lv_draw
+        mov     cx,QUERY_LEN
+        mov     dx,(ROW_TOP shl 8) + 10
+        xor     bl,bl
+        call    show_input
         ret
 
 ; ----------------------------------------------------------------------------
@@ -309,82 +305,7 @@ do_add:
         ret
 
 ; ----------------------------------------------------------------------------
-; F4 - Search product
-; ----------------------------------------------------------------------------
-do_search:
-        mov     byte [query_buf],0
-        mov     si,sec_search
-        mov     di,hint_search
-        call    draw_frame
-        call    search_label
-.input:
-        mov     si,query_buf
-        mov     cx,QUERY_LEN
-        mov     dx,(ROW_TOP shl 8) + 10
-        xor     bl,bl
-        call    input_line
-        cmp     al,K_ESC
-        je      .done
-        cmp     al,K_ENTER
-        jne     .input
-        xor     ax,ax
-        mov     [lv_sel],ax
-        mov     [lv_top],ax
-.results:
-        mov     si,query_buf
-        call    str_trim
-        call    db_filter
-        mov     byte [lv_first],ROW_TOP+3
-        mov     word [lv_rows],ROW_BOTTOM-ROW_TOP-3
-        mov     cx,QUERY_LEN
-        mov     dx,(ROW_TOP shl 8) + 10
-        xor     bl,bl
-        call    show_input
-.list:
-        call    list_view
-        cmp     al,K_ESC
-        jne     .enter
-        mov     dh,ROW_TOP+1
-        mov     cl,ROW_BOTTOM-ROW_TOP
-        call    clear_rows
-        jmp     .input
-.enter:
-        cmp     al,K_ENTER
-        jne     .delete
-        mov     ax,bx
-        call    edit_record
-        mov     si,sec_search
-        mov     di,hint_search
-        call    draw_frame
-        call    search_label
-        jmp     .results
-.delete:
-        or      al,al
-        jnz     .list
-        cmp     ah,S_DEL
-        jne     .list
-        mov     ax,bx
-        call    delete_confirm
-        call    show_pending
-        jmp     .results
-.done:
-        ret
-
-search_label:
-        push    bx
-        push    dx
-        push    si
-        mov     dx,(ROW_TOP shl 8) + 1
-        mov     si,lbl_search
-        mov     bl,A_NORMAL
-        call    put_str
-        pop     si
-        pop     dx
-        pop     bx
-        ret
-
-; ----------------------------------------------------------------------------
-; F5 - Update product
+; F4 - Update product
 ; ----------------------------------------------------------------------------
 do_update:
         mov     si,sec_update
@@ -490,7 +411,7 @@ select_product:
         ret
 
 ; ----------------------------------------------------------------------------
-; F6 - Delete product
+; F5 - Delete product
 ; ----------------------------------------------------------------------------
 do_delete:
         mov     si,sec_delete
@@ -541,7 +462,7 @@ delete_confirm:
         ret
 
 ; ----------------------------------------------------------------------------
-; F7 - Sales (checkout)
+; F6 - Sales (checkout)
 ; ----------------------------------------------------------------------------
 do_sell:
 .new:
@@ -1093,7 +1014,7 @@ sell_pay:
         ret
 
 ; ----------------------------------------------------------------------------
-; F8 - Stock report (STOCK.TXT)
+; F7 - Stock report (STOCK.TXT)
 ; ----------------------------------------------------------------------------
 do_report:
         mov     si,sec_report
@@ -1371,7 +1292,7 @@ rpt_summary_line:
         ret
 
 ; ----------------------------------------------------------------------------
-; F9 - Backup (DATA.DAT and STOCK.TXT to another drive)
+; F8 - Backup (DATA.DAT and STOCK.TXT to another drive)
 ; ----------------------------------------------------------------------------
 do_backup:
         mov     si,sec_backup
@@ -1526,7 +1447,7 @@ backup_one:
         ret
 
 ; ----------------------------------------------------------------------------
-; F10 - Settings (MARKET.CFG)
+; F9 - Settings (MARKET.CFG)
 ; ----------------------------------------------------------------------------
 SET_COUNT       = 9
 SET_ROW         = ROW_TOP+2
@@ -1949,42 +1870,4 @@ pw_input:
         pop     cx
         pop     bx
         pop     ax
-        ret
-
-; ----------------------------------------------------------------------------
-; F11 - About
-; ----------------------------------------------------------------------------
-do_about:
-        mov     si,sec_about
-        mov     di,hint_back
-        call    draw_frame
-        mov     dx,((ROW_TOP+1) shl 8) + 9
-        mov     cx,((ROW_BOTTOM-1) shl 8) + 70
-        mov     bl,A_NORMAL
-        call    draw_box
-        mov     si,about_text
-        mov     dh,ROW_TOP+3
-        mov     bl,A_BRIGHT
-.line:
-        cmp     byte [si],0FFh
-        je      .count
-        call    put_center
-        call    str_len
-        add     si,cx
-        inc     si
-        inc     dh
-        mov     bl,A_NORMAL
-        jmp     .line
-.count:
-        mov     di,msg_buf
-        mov     si,str_about_count
-        call    str_append
-        mov     ax,[db_count]
-        call    u16_append
-        mov     si,str_sum_max
-        call    str_append
-        mov     si,msg_buf
-        inc     dh
-        call    put_center
-        call    get_key
         ret

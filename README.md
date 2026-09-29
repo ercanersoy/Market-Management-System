@@ -13,24 +13,21 @@ without a driver because it types the code and presses Enter like a keyboard.
 
 | Key | Function | Description |
 |-----|----------|-------------|
-| F1  | Help | Key reference |
-| F2  | Product list | Scrollable list; Enter edits, Del deletes |
+| F1  | Help and About | Key reference and program information |
+| F2  | Products | Product list with a search field. Search by barcode or any part of the name, ignoring case; an empty search lists every product. In the list, Enter edits and Del deletes. |
 | F3  | Add product | Barcode, name, price, quantity |
-| F4  | Search product | Barcode or any part of the name, ignoring case |
-| F5  | Update product | Scan a barcode or search by name, then edit |
-| F6  | Delete product | Scan a barcode or search by name, then confirm |
-| F7  | Sales (checkout) | Scan items (`3*BARCODE` sells 3), payment, change; stock is reduced |
-| F8  | Stock report | Writes `STOCK.TXT` (in stock / out of stock / summary) |
-| F9  | Backup | Copies `DATA.DAT` and `STOCK.TXT` to the root of another drive |
-| F10 | Settings | Stored in `MARKET.CFG` |
-| F11 | About | Program information |
-| F12 | Exit | Back to DOS |
+| F4  | Update product | Scan a barcode or search by name, then edit |
+| F5  | Delete product | Scan a barcode or search by name, then confirm |
+| F6  | Sales (checkout) | Scan items (`3*BARCODE` sells 3), payment, change; stock is reduced |
+| F7  | Stock report | Writes `STOCK.TXT` (in stock / out of stock / summary) |
+| F8  | Backup | Copies `DATA.DAT` and `STOCK.TXT` to the root of another drive |
+| F9  | Settings | Stored in `MARKET.CFG` |
+| F10 | Exit | Back to DOS (after confirmation) |
 
-On an 83/84-key XT keyboard, which has no F11 or F12, use **Shift+F1** for
-About and **Shift+F2** for Exit. The main menu also works with Up/Down and
-Enter, and Esc leaves the program.
+The main menu is operated only with the function keys F1-F10, which every
+PC/XT keyboard has.
 
-### Settings (F10)
+### Settings (F9)
 
 * Store name (shown in the title bar and in the report)
 * Currency symbol
@@ -49,7 +46,7 @@ All files are plain text and are kept in the current directory.
 |------|----------|
 | `DATA.DAT`   | Product database, one product per line: `BARCODE;PRODUCT NAME;PRICE;QUANTITY`. Lines starting with `;` are comments. |
 | `MARKET.CFG` | Settings as `KEY=VALUE` lines. It is created with default values on the first start. |
-| `STOCK.TXT`  | Stock report, created by F8 (and by F9 when it does not exist yet). |
+| `STOCK.TXT`  | Stock report, created by F7 (and by F8 when it does not exist yet). |
 
 Example `DATA.DAT`:
 
@@ -111,7 +108,7 @@ an error instead of producing 386 code.
 | `SRC/DATABASE.INC` | Product records, `DATA.DAT` load/save, search |
 | `SRC/CONFIG.INC`   | `MARKET.CFG` load/save |
 | `SRC/UI.INC`       | Frame, status line, input fields, lists, product form |
-| `SRC/SCREENS.INC`  | Main menu and the 12 functions |
+| `SRC/SCREENS.INC`  | Main menu and the functions |
 | `SRC/DATA.INC`     | Texts, tables and variables |
 
 ## Trying it in DOSBox

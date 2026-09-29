@@ -181,18 +181,27 @@ put_center:
 
 ; ----------------------------------------------------------------------------
 ; draw_lines - SI = list of zero terminated strings ended by 0FFh,
-;              DH/DL = position of the first line, BL = attribute
+;              DH/DL = position of the first line, BL = attribute.
+;              A line starting with 01h is drawn bright (heading).
 ; ----------------------------------------------------------------------------
 draw_lines:
+        push    bx
         push    cx
         push    dx
         push    si
 .line:
         cmp     byte [si],0FFh
         je      .done
+        push    bx
         push    dx
+        cmp     byte [si],01h
+        jne     .put
+        inc     si
+        mov     bl,A_BRIGHT
+.put:
         call    put_str
         pop     dx
+        pop     bx
         call    str_len
         add     si,cx
         inc     si
@@ -202,6 +211,7 @@ draw_lines:
         pop     si
         pop     dx
         pop     cx
+        pop     bx
         ret
 
 ; ----------------------------------------------------------------------------
