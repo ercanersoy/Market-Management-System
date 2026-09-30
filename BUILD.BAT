@@ -1,5 +1,4 @@
 @ECHO OFF
-REM Build MARKET.COM with the flat assembler (FASM for DOS)
-CD SRC
-FASM MARKET.ASM ..\MARKET.COM
-CD ..
+REM Build MARKET.COM with the flat assembler
+IF NOT EXIST BIN\NUL MD BIN
+FASM SRC\MARKET.ASM BIN\MARKET.COM
