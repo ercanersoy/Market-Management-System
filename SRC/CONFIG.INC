@@ -4,7 +4,6 @@
 ;
 ;  MARKET.CFG is a plain text file with KEY=VALUE lines, for example:
 ;
-;      STORE=MY MARKET
 ;      SOUND=ON
 ;      SAVER=ON
 ;      SAVERTIME=5
@@ -18,9 +17,7 @@
 cfg_defaults:
         push    si
         push    di
-        mov     si,def_store
-        mov     di,cfg_store
-        call    str_copy
+        mov     byte [cfg_store],0      ; no store name until one is set
         mov     si,def_currency
         mov     di,cfg_currency
         call    str_copy

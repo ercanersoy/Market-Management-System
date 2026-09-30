@@ -35,7 +35,6 @@ cfg_header          db '; MARKET.CFG - Market Management System settings',CR_LF
                     db '; LOWSTOCK  = products with this quantity or less are "low stock"',CR_LF
                     db '; BACKUP    = default backup drive letter',CR_LF,0
 
-def_store           db 'MY MARKET',0
 def_currency        db 'TL',0
 
 key_store           db 'STORE',0

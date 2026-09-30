@@ -48,13 +48,8 @@ All files are plain text and are kept in the current directory.
 | `MARKET.CFG` | Settings as `KEY=VALUE` lines. It is created with default values on the first start. |
 | `STOCK.TXT`  | Stock report, created by F7 (and by F8 when it does not exist yet). |
 
-Example `DATA.DAT`:
-
-```
-; BARCODE;PRODUCT NAME;PRICE;QUANTITY
-8690504000011;Milk 1L;24.50;40
-8690504000028;White bread;12.00;3
-```
+The program starts with an empty database and no store name; enter the
+store name in Settings (F9) and add products with F3.
 
 `DATA.DAT` is written to `DATA.TMP` first and then renamed, so a failed
 write does not destroy the old database. The password in `MARKET.CFG` is
@@ -121,7 +116,7 @@ cputype=8086
 cycles=fixed 300
 ```
 
-Copy `MARKET.COM` (and optionally `EXAMPLE/DATA.DAT`) to a directory, mount
+Copy `MARKET.COM` to a directory, mount
 it and run `MARKET`.
 
 ## License
