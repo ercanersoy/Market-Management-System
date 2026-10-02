@@ -47,7 +47,7 @@ All files are plain text and are kept in the current directory.
 | `MARKET.CFG` | Settings as `KEY=VALUE` lines. It is created with default values on the first start. |
 | `STOCK.TXT`  | Stock report, created by F7 (and by F8 when it does not exist yet). |
 
-Example `DATA.DAT`:
+Example for `DATA.DAT`:
 
 ```
 ; BARCODE;PRODUCT NAME;PRICE;QUANTITY
@@ -119,9 +119,6 @@ machine=hercules
 cputype=8086
 cycles=fixed 300
 ```
-
-Copy `MARKET.COM` (and optionally `EXAMPLE/DATA.DAT`) to a directory, mount
-it and run `MARKET`.
 
 ## License
 
