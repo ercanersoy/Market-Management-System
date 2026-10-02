@@ -1,7 +1,6 @@
 # Market Management System
 
-A simple text-mode (TUI) market management program for the **IBM PC/XT
-(Intel 8088)** with an **MDA** (monochrome) display, running under
+A simple text-mode (TUI) market management program for the **PC** with an **MDA** (monochrome) display, running under
 **MS-DOS**. It is written in 8086 assembly language for the
 [flat assembler (FASM)](https://flatassembler.net/) and builds to a single
 `MARKET.COM` file.
@@ -127,3 +126,10 @@ it and run `MARKET`.
 ## License
 
 MIT License. See [LICENSE](LICENSE).
+
+## Note
+
+IBM is a trademark of IBM.
+Microsoft is a trademark of Microsoft.
+MS-DOS is a trademark of Microsoft.
+Windows is a trademark of Microsoft.
