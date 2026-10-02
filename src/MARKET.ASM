@@ -2,10 +2,10 @@
 ;
 ;  MARKET.COM - Market Management System
 ;
-;  Target   : IBM PC/XT compatible (Intel 8088), MDA display adapter,
+;  Target   : IBM PC/XT compatible (Intel 8088), MDA, CGA, EGA or VGA,
 ;             MS-DOS 3.0 or later
 ;  Assembler: flat assembler (FASM)
-;  Build    : fasm MARKET.ASM MARKET.COM
+;  Build    : fasm MARKET.ASM ../bin/MARKET.COM
 ;
 ;  Files used by the program (in the current directory):
 ;      DATA.DAT    product database (text)

@@ -130,7 +130,7 @@ err_wrong_password  db 'Wrong password!',0
 ; ---- Help ------------------------------------------------------------------
 help_text           db 1,'ABOUT',0
                     db '  MARKET MANAGEMENT SYSTEM 1.0 - stock, sales and reports for small markets',0
-                    db '  For IBM PC/XT (8088), MDA display and MS-DOS 3.0+, written with FASM.',0
+                    db '  For IBM PC/XT (8088), MDA/CGA/EGA/VGA and MS-DOS 3.0+, written with FASM.',0
                     db '  Copyright (c) 2026 Ercan Ersoy. Released under the MIT License.',0
                     db 1,'MAIN MENU FUNCTION KEYS',0
                     db '  F1 Help and About    F4 Update product   F7 Stock report   F10 Exit',0
@@ -307,6 +307,7 @@ msg_bad_lines2      db ' invalid line(s) in DATA.DAT were skipped.',0
 ; ----------------------------------------------------------------------------
 w_ten               dw 10
 vid_seg             dw 0B000h
+attr_mask           db 0FFh
 cur_shape           dw 0B0Ch
 cur_visible         db 0
 kb_funcs            dw 0100h            ; high = check, low = read function

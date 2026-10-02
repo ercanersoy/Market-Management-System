@@ -4,3 +4,5 @@
 *.BAT   text eol=crlf
 *.DAT   text eol=crlf
 *.COM   binary
+# Documentation for DOS, kept byte for byte (CR/LF, code page 857)
+bin/*.TXT   -text

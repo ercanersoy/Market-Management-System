@@ -469,6 +469,7 @@ in_draw:
         mov     cx,[in_max]
         inc     cx
         mov     ah,A_INPUT
+        and     ah,[attr_mask]
 .next:
         lodsb
         or      al,al

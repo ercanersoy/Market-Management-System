@@ -1,12 +1,14 @@
 # Market Management System
 
-* [Türkçe (Türkiye)](README_tr-TR.md)
-* [English (United States)](README_en-US.md)
-* [English (United Kingdom)](README_en-UK.md)
-A simple text-mode (TUI) market management program for the **PC** with an **MDA** (monochrome) display, running under
-**MS-DOS**. It is written in 8086 assembly language for the
+A simple text-mode (TUI) market management program for the **PC** with an
+**MDA**, **CGA**, **EGA** or **VGA** display, running under **MS-DOS**. It is
+written in 8086 assembly language for the
 [flat assembler (FASM)](https://flatassembler.net/) and builds to a single
 `MARKET.COM` file.
+
+The program always uses the 80x25 text mode; no graphics mode is used. On
+CGA, EGA and VGA the screen is green on black. On MDA the screen is
+monochrome as usual.
 
 All input comes from the keyboard. A keyboard-wedge **barcode reader** works
 without a driver because it types the code and presses Enter like a keyboard.
@@ -50,7 +52,7 @@ All files are plain text and are kept in the current directory.
 | `MARKET.CFG` | Settings as `KEY=VALUE` lines. It is created with default values on the first start. |
 | `STOCK.TXT`  | Stock report, created by F7 (and by F8 when it does not exist yet). |
 
-Example for `DATA.DAT`:
+Example `DATA.DAT`:
 
 ```
 ; BARCODE;PRODUCT NAME;PRICE;QUANTITY
@@ -72,12 +74,30 @@ scrambled so it cannot be read at a glance. This is not encryption.
 
 * IBM PC/XT or compatible (8088 or better). Only 8086/8088 instructions
   are used.
-* MDA display (80x25 monochrome, B000h). A colour adapter also works; the
-  program then uses B800h.
+* One of these display adapters:
+  * MDA: 80x25 monochrome text mode (mode 7, B000h).
+  * CGA, EGA or VGA: 80x25 colour text mode (mode 3, B800h), green on black.
+    The program switches to this mode at start-up.
 * MS-DOS 3.0 or later. About 130 KB of free memory: 64 KB for the program
   and 64 KB for the product records.
 
+## Distribution
+
+The `bin` directory contains everything needed to run the program:
+
+| File | Contents |
+|------|----------|
+| `bin/MARKET.COM`   | The program |
+| `bin/READMETR.TXT` | This documentation in Turkish (code page 857) |
+| `bin/READMEUS.TXT` | This documentation in American English |
+| `bin/READMEUK.TXT` | This documentation in British English |
+
+The text files have DOS (CR/LF) line endings and lines of at most 78
+characters, so they can be read with `TYPE` or `MORE` in DOS.
+
 ## Building
+
+The program is built into the `bin` directory.
 
 With FASM on DOS:
 
@@ -91,9 +111,12 @@ With fasm on Linux:
 ./build.sh
 ```
 
-Or directly: `cd SRC` and then `fasm MARKET.ASM ../MARKET.COM`.
+Or directly: `cd src` and then `fasm MARKET.ASM ../bin/MARKET.COM`.
 
-`SRC/MACROS.INC` forces all conditional jumps to the short form. The 8088
+On Linux, `build.sh` also creates the `bin/README*.TXT` files from the
+`README_*.md` files with `tools/md2txt.py` (Python 3 is needed for this).
+
+`src/MACROS.INC` forces all conditional jumps to the short form. The 8088
 has no near conditional jumps, so an out-of-range jump stops the build with
 an error instead of producing 386 code.
 
@@ -101,19 +124,21 @@ an error instead of producing 386 code.
 
 | File | Contents |
 |------|----------|
-| `SRC/MARKET.ASM`   | Entry point, start-up, interrupt handlers |
-| `SRC/CONST.INC`    | Constants and screen layout |
-| `SRC/VIDEO.INC`    | Direct video memory output, boxes, cursor |
-| `SRC/KEYBOARD.INC` | Keyboard, idle work, PC speaker, screen saver |
-| `SRC/STRING.INC`   | Strings, number parsing/formatting, 48-bit arithmetic |
-| `SRC/FILE.INC`     | Buffered text file I/O, file copy |
-| `SRC/DATABASE.INC` | Product records, `DATA.DAT` load/save, search |
-| `SRC/CONFIG.INC`   | `MARKET.CFG` load/save |
-| `SRC/UI.INC`       | Frame, status line, input fields, lists, product form |
-| `SRC/SCREENS.INC`  | Main menu and the functions |
-| `SRC/DATA.INC`     | Texts, tables and variables |
+| `src/MARKET.ASM`   | Entry point, start-up, interrupt handlers |
+| `src/CONST.INC`    | Constants and screen layout |
+| `src/VIDEO.INC`    | Display adapter detection, direct video memory output, boxes, cursor |
+| `src/KEYBOARD.INC` | Keyboard, idle work, PC speaker, screen saver |
+| `src/STRING.INC`   | Strings, number parsing/formatting, 48-bit arithmetic |
+| `src/FILE.INC`     | Buffered text file I/O, file copy |
+| `src/DATABASE.INC` | Product records, `DATA.DAT` load/save, search |
+| `src/CONFIG.INC`   | `MARKET.CFG` load/save |
+| `src/UI.INC`       | Frame, status line, input fields, lists, product form |
+| `src/SCREENS.INC`  | Main menu and the functions |
+| `src/DATA.INC`     | Texts, tables and variables |
 
 ## Trying it in DOSBox
+
+For MDA:
 
 ```
 [dosbox]
@@ -123,7 +148,12 @@ cputype=8086
 cycles=fixed 300
 ```
 
-## License
+For CGA, EGA or VGA, use `machine=cga`, `machine=ega` or `machine=svga_s3`.
+
+Copy `MARKET.COM` from the `bin` directory to a directory, mount it and run
+`MARKET`.
+
+## Licence
 
 MIT License. See [LICENSE](LICENSE).
 
