@@ -129,7 +129,7 @@ MIT License. See [LICENSE](LICENSE).
 
 ## Note
 
-IBM is a trademark of IBM.
-Microsoft is a trademark of Microsoft.
-MS-DOS is a trademark of Microsoft.
-Windows is a trademark of Microsoft.
+* IBM is a trademark of IBM.
+* Microsoft is a trademark of Microsoft.
+* MS-DOS is a trademark of Microsoft.
+* Windows is a trademark of Microsoft.
