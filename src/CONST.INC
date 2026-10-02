@@ -44,6 +44,7 @@ A_NORMAL        = 07h
 A_BRIGHT        = 0Fh
 A_REVERSE       = 70h
 A_INPUT         = 70h
+A_COLOR_MASK    = 2Ah                   ; CGA/EGA/VGA: green on black
 
 ; ---- ASCII key codes -------------------------------------------------------
 K_BS            = 08h

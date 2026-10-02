@@ -2,9 +2,15 @@
 ;  VIDEO.INC - Text screen output (direct video memory, 80x25)
 ; ============================================================================
 ;
-;  The MDA text buffer is at B000:0000.  If a colour adapter is found the
-;  program falls back to B800:0000 so it can still be used for testing.
-;  Every cell is a word: low byte = character, high byte = attribute.
+;  The MDA text buffer is at B000:0000.  On a colour adapter (CGA, EGA or
+;  VGA) the program uses 80x25 colour text mode 3 at B800:0000 and shows
+;  green on black.  Every cell is a word: low byte = character, high byte =
+;  attribute.
+;
+;  The program uses MDA attributes (07h normal, 0Fh bright, 70h reverse).
+;  Every writer ANDs them with attr_mask: FFh on MDA leaves them as they are,
+;  2Ah on a colour adapter keeps only the green and intensity bits, so
+;  07h -> 02h (green), 0Fh -> 0Ah (bright green), 70h -> 20h (black on green).
 
 ; ----------------------------------------------------------------------------
 ; video_init - detect the adapter, remember the cursor shape, clear screen
@@ -18,14 +24,12 @@ video_init:
         cmp     al,7                    ; 7 = MDA 80x25 monochrome
         jne     .color
         mov     word [vid_seg],0B000h
+        mov     byte [attr_mask],0FFh
         jmp     .shape
 .color:
         mov     word [vid_seg],0B800h
-        cmp     al,2
-        je      .shape
-        cmp     al,3
-        je      .shape
-        mov     ax,0003h                ; set 80x25 text mode
+        mov     byte [attr_mask],A_COLOR_MASK
+        mov     ax,0003h                ; CGA/EGA/VGA: 80x25 colour text mode
         int     10h
 .shape:
         xor     ax,ax
@@ -51,6 +55,7 @@ video_init:
 ; ----------------------------------------------------------------------------
 video_done:
         push    dx
+        mov     byte [attr_mask],0FFh   ; leave DOS grey on black
         call    clear_screen
         xor     dx,dx
         call    set_cursor
@@ -82,6 +87,7 @@ put_char:
         call    vid_offset
         mov     es,[vid_seg]
         mov     ah,bl
+        and     ah,[attr_mask]
         stosw
         pop     es
         pop     di
@@ -99,6 +105,7 @@ fill_chars:
         call    vid_offset
         mov     es,[vid_seg]
         mov     ah,bl
+        and     ah,[attr_mask]
         rep     stosw
         pop     es
         pop     di
@@ -118,6 +125,7 @@ put_str:
         call    vid_offset
         mov     es,[vid_seg]
         mov     ah,bl
+        and     ah,[attr_mask]
 .next:
         lodsb
         or      al,al
@@ -145,6 +153,7 @@ put_field:
         call    vid_offset
         mov     es,[vid_seg]
         mov     ah,bl
+        and     ah,[attr_mask]
         jcxz    .done
 .copy:
         lodsb
